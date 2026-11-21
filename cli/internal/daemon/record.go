@@ -40,7 +40,7 @@ func (s *Server) recordAction(c *Conn, req Request, err error) {
 		if req.Cmd == "longpress" {
 			rec["ms"] = req.Ms
 		}
-	case "swipe":
+	case "swipe", "curve":
 		if serr != nil || pts < 4 {
 			return
 		}

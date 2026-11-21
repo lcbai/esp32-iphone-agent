@@ -480,6 +480,24 @@ func (p *Pointer) Swipe(ctx context.Context, x1, y1, x2, y2 float64, hold bool) 
 	return p.Drag(ctx, []Point{{x1, y1}, {x2, y2}}, hold)
 }
 
+// Curve positions the pointer, then lets the board perform the entire gesture.
+// The board randomizes intermediate points and preserves the requested end point.
+func (p *Pointer) Curve(ctx context.Context, x1, y1, x2, y2 float64) error {
+	if err := p.Point(ctx, x1, y1, false); err != nil {
+		return err
+	}
+	dx, dy := p.dx(x2)-p.dx(x1), p.dy(y2)-p.dy(y1)
+	if dx < -3000 || dx > 3000 || dy < -3000 || dy > 3000 || (dx == 0 && dy == 0) {
+		return errors.New("curve displacement must be nonzero and within 3000 units per axis")
+	}
+	err := p.send(ctx, "curve %d %d", dx, dy)
+	p.pos = nil // The next operation rehomes after this board-side motion.
+	if err != nil {
+		_ = p.send(context.WithoutCancel(ctx), "release")
+	}
+	return err
+}
+
 // Drag presses at the first point, moves through the rest, releases: one continuous stroke. hold rests at the
 // end first, so lists and pickers stop exactly there; system gestures (home, back) need the flick.
 func (p *Pointer) Drag(ctx context.Context, pts []Point, hold bool) error {

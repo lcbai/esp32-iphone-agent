@@ -84,6 +84,21 @@ func TestDoubleTapClicksTwiceInPlace(t *testing.T) {
 	}
 }
 
+func TestCurveSendsOneBoardSideGesture(t *testing.T) {
+	d := &fakeDevice{}
+	p := newPointer(t, d, nil)
+	p.FinishCalibration(0.5, 0.25)
+	if err := p.Curve(context.Background(), 0.5, 0.75, 0.5, 0.25); err != nil {
+		t.Fatal(err)
+	}
+	if got := d.sent[len(d.sent)-1]; got != "curve 0 -400" {
+		t.Fatalf("last command %q; all %v", got, d.sent)
+	}
+	if p.pos != nil {
+		t.Fatal("curve must invalidate the tracked position")
+	}
+}
+
 func TestChineseIsTypedAsPinyin(t *testing.T) {
 	d := &fakeDevice{}
 	p := newPointer(t, d, nil)

@@ -191,7 +191,7 @@ func (s *Server) Do(ctx context.Context, req Request) Response {
 		return s.screenshot(ctx, c, req)
 	case "calibrate":
 		return s.calibrate(ctx, c)
-	case "tap", "longpress", "swipe", "text", "keys", "button":
+	case "tap", "longpress", "swipe", "curve", "text", "keys", "button":
 		return s.io(ctx, c, req)
 	case "send": // debugging: one raw board command; afterwards the pointer position is unknown
 		reply, err := c.Send(ctx, req.Text)

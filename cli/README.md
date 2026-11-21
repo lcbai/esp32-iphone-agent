@@ -38,6 +38,7 @@ never by the OS, so stale Bluetooth bonds don't matter. Keys live in the user co
 | `io tap X,Y [--aim] [--count N]` | coordinates are pixels of a full-size screenshot; `--count 2` double-taps |
 | `io longpress X,Y [--duration MS]` | |
 | `io swipe X1,Y1,X2,Y2` | |
+| `io curve X1,Y1,X2,Y2` | Board-generated curved drag with random variation; requires firmware with the `curve` command |
 | `io text 'TEXT'` | ASCII; Chinese is typed as pinyin |
 | `io keys COMBO` | `enter`, `esc`, `tab`, `backspace`, `space`, arrows, `cmd+a`, `shift+tab` ... |
 | `io button HOME` | the only button |

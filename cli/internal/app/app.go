@@ -30,6 +30,7 @@ const usage = `esp32agent: see and drive an iPhone through an ESP32 Agent board,
   io tap X,Y [--aim] [--count N]   coordinates are screenshot pixels; --count 2 double-taps
   io longpress X,Y [--duration MS]
   io swipe X1,Y1,X2,Y2
+  io curve X1,Y1,X2,Y2          board-generated curved swipe (requires updated firmware)
   io text 'TEXT'                   ASCII; Chinese is typed as pinyin
   io keys COMBO                    enter, esc, tab, backspace, space, up, cmd+a, ...
   io button HOME
@@ -236,14 +237,14 @@ func (a *App) io(fs *flag.FlagSet, dev *string, args []string) int {
 		return a.fail(err)
 	}
 	if len(pos) == 0 {
-		return a.fail(errors.New("usage: esp32agent io tap|longpress|swipe|text|keys|button ..."))
+		return a.fail(errors.New("usage: esp32agent io tap|longpress|swipe|curve|text|keys|button ..."))
 	}
 	sub, arg := pos[0], strings.Join(pos[1:], " ")
 	req := daemon.Request{Cmd: sub, Device: *dev, Aim: *aim, Ms: *ms, Count: *count, Text: arg}
 	switch sub {
-	case "tap", "longpress", "swipe":
+	case "tap", "longpress", "swipe", "curve":
 		n := 2
-		if sub == "swipe" {
+		if sub == "swipe" || sub == "curve" {
 			n = 4
 		}
 		if req.Pts, err = coords(arg, n); err != nil {

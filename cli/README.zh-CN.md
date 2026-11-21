@@ -31,6 +31,7 @@ npm：`npm install -g esp32agent`。安装脚本读取 `https://manina.ai/cli/ve
 | `io tap X,Y [--aim] [--count N]` | 坐标是原尺寸截图的像素；`--count 2` 双击 |
 | `io longpress X,Y [--duration MS]` | |
 | `io swipe X1,Y1,X2,Y2` | |
+| `io curve X1,Y1,X2,Y2` | 曲线上划或拖动：板子生成随机扰动并连续执行；需要包含 `curve` 指令的固件。坐标为截图像素 |
 | `io text 'TEXT'` | 仅 ASCII；中文按拼音输入 |
 | `io keys COMBO` | `enter`、`esc`、`tab`、`backspace`、`space`、方向键、`cmd+a`、`shift+tab` …… |
 | `io button HOME` | 唯一的按键 |

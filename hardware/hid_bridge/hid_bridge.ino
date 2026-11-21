@@ -3,12 +3,13 @@
 // iOS app on the same phone. It holds no logic; the app decides. Protocol: docs/ble-protocol.md.
 //
 // HID commands (unchanged from the old TCP protocol, the board answers "ok" or "err <why>"):
-//   ping | pace | home | move <dx> <dy> [speed] | press | release | click
+//   ping | pace | home | move <dx> <dy> [speed] | curve <dx> <dy> | press | release | click
 //   abs <x> <y> [step] (flash.sh --abs builds: 0-32767 across the screen; `home` and `move` still work)
 //   scroll <v> <h> | type <ascii text> | key <combo, e.g. cmd+h, enter>
 //   homescreen (the consumer-control Home key, "AC Home": iOS goes to the Home Screen, like a keyboard's home key)
 
 #include <esp_task_wdt.h>
+#include <esp_random.h>
 #include <esp_mac.h>
 #include <esp_wifi.h>
 #include <esp_core_dump.h>
@@ -173,6 +174,27 @@ String run(const String &line) {
     return "ok";
   }
   if (cmd == "release") { mouse.release(MOUSE_LEFT); holdUntil = 0; return "ok"; }
+  if (cmd == "curve") {
+    long dx, dy;
+    char extra;
+    if (sscanf(arg.c_str(), "%ld %ld %c", &dx, &dy, &extra) != 2 ||
+        dx < -3000 || dx > 3000 || dy < -3000 || dy > 3000 || (dx == 0 && dy == 0))
+      return "err usage: curve dx dy (each -3000..3000)";
+    // Preserve the requested end point while adding small sideways variations.
+    // Intermediate offsets are random; the final offset is zero.
+    long lastX = 0, lastY = 0;
+    mouse.press(MOUSE_LEFT);
+    for (int i = 1; i <= 8; i++) {
+      int jitter = i == 8 ? 0 : (int)(esp_random() % 11) - 5;
+      long x = dx * i / 8 + (labs(dy) >= labs(dx) ? jitter : 0);
+      long y = dy * i / 8 + (labs(dy) < labs(dx) ? jitter : 0);
+      movePaced(x - lastX, y - lastY, 40);
+      lastX = x; lastY = y;
+    }
+    mouse.release(MOUSE_LEFT);
+    holdUntil = 0;
+    return "ok";
+  }
   if (cmd == "flick") {  // press, move, release with no pause between: a lingering stroke from the home bar
     // opened the app switcher instead of the Home Screen (iddzz 2026-11-12)
     mouse.press(MOUSE_LEFT);

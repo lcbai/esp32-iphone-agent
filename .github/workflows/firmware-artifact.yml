@@ -1,0 +1,31 @@
+name: Firmware artifact
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/curve-firmware]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Install ESP32 toolchain
+        run: |
+          arduino-cli core update-index --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli core install esp32:esp32@3.3.12 --additional-urls https://espressif.github.io/arduino-esp32/package_esp32_index.json
+          arduino-cli lib install "NimBLE-Arduino@2.5.1"
+      - name: Build firmware
+        run: hardware/flash.sh --build-only --name Handsy
+      - uses: actions/upload-artifact@v4
+        with:
+          name: esp32-curve-firmware
+          path: |
+            hardware/build/*.bin
+            hardware/build/*.json
+          if-no-files-found: error

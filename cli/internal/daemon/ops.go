@@ -238,6 +238,10 @@ func (s *Server) io(ctx context.Context, c *Conn, req Request) Response {
 			x1, y1 := pt(0)
 			x2, y2 := pt(2)
 			return p.Swipe(ctx, x1, y1, x2, y2, true)
+		case "curve":
+			x1, y1 := pt(0)
+			x2, y2 := pt(2)
+			return p.Curve(ctx, x1, y1, x2, y2)
 		}
 		return nil
 	}()
