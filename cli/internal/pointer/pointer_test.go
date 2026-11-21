@@ -166,6 +166,16 @@ func TestFixLearnsAnOffset(t *testing.T) {
 	}
 }
 
+func TestFixCorrectsLargeHomeCornerOffset(t *testing.T) {
+	p := newPointer(t, &fakeDevice{}, nil)
+	for _, aimed := range []float64{0.14, 0.32} {
+		p.remember("x", [2]float64{aimed, aimed + 0.128})
+	}
+	if got := p.Fix(0.5, "x"); math.Abs(got-0.372) > 1e-9 {
+		t.Fatalf("fix %v", got)
+	}
+}
+
 // fakeScreen draws the fake device's pointer, with true span 410 x 870 and an offset.
 type fakeScreen struct{ d *fakeDevice }
 

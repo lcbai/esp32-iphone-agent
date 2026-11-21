@@ -389,7 +389,9 @@ func (p *Pointer) Fix(t float64, axis string) float64 {
 		a = 1
 	}
 	b := mf - a*mc
-	if math.Abs(b) < 0.1 {
+	// Some iPhones clamp the pointer away from a rounded screen corner after
+	// homing, leaving a repeatable offset larger than one tenth of the width.
+	if math.Abs(b) < 0.2 {
 		return (t - b) / a
 	}
 	return t
